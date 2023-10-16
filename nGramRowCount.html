@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>N-gram Row Counter</title>
+</head>
+<body>
+    <h1>N-gram Row Counter</h1>
+    <input type="file" id="textFile" accept=".txt">
+    <label for="nGramInput">Enter the number of N-grams:</label>
+    <input type="number" id="nGramInput" min="1" value="1">
+    <button onclick="processFile()">Count N-gram Phrases</button>
+    <ul id="results"></ul>
+
+    <script>
+        function processFile() {
+            const fileInput = document.getElementById('textFile');
+            const nGramInput = document.getElementById('nGramInput');
+            const file = fileInput.files[0];
+            const n = parseInt(nGramInput.value);
+
+            if (file && !isNaN(n) && n >= 1) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const text = e.target.result;
+                    const lines = text.split('\n');
+                    const nGramCount = {};
+
+                    lines.forEach(line => {
+                        const words = line.split(' ');
+                        for (let i = 0; i <= words.length - n; i++) {
+                            const nGram = words.slice(i, i + n).join(' ');
+                            if (nGram in nGramCount) {
+                                nGramCount[nGram]++;
+                            } else {
+                                nGramCount[nGram] = 1;
+                            }
+                        }
+                    });
+
+                    const sortedResults = Object.entries(nGramCount)
+                        .sort((a, b) => b[1] - a[1]);
+
+                    displayResults(sortedResults);
+                };
+
+                reader.readAsText(file);
+            } else {
+                alert('Please select a text file and enter a valid positive integer for N-grams.');
+            }
+        }
+
+        function displayResults(sortedResults) {
+            const resultsList = document.getElementById('results');
+            resultsList.innerHTML = '';
+
+            sortedResults.forEach(result => {
+                const nGram = result[0];
+                const count = result[1];
+                const listItem = document.createElement('li');
+                listItem.textContent = `${nGram}: ${count} rows`;
+                resultsList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+</html>
